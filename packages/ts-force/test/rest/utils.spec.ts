@@ -1,6 +1,4 @@
-import 'mocha';
 import { AxiosResponse } from 'axios';
-import { expect } from 'chai';
 import { parseLimitsFromResponse } from '../../src/rest/utils';
 
 describe('parseLimitsFromResponse', () => {
@@ -11,15 +9,15 @@ describe('parseLimitsFromResponse', () => {
       },
     } as any;
     const result = parseLimitsFromResponse(fakeResponse);
-    expect(result.limit).to.equal(200);
-    expect(result.used).to.equal(100);
+    expect(result.limit).toBe(200);
+    expect(result.used).toBe(100);
   });
   it('no header', () => {
     const fakeResponse: AxiosResponse = {
       headers: {},
     } as any;
     const result = parseLimitsFromResponse(fakeResponse);
-    expect(result).to.be.eql(null);
+    expect(result).toEqual(null);
   });
   it('header invalid format', () => {
     const fakeResponse: AxiosResponse = {
@@ -28,6 +26,6 @@ describe('parseLimitsFromResponse', () => {
       },
     } as any;
     const result = parseLimitsFromResponse(fakeResponse);
-    expect(result).to.eql(null);
+    expect(result).toEqual(null);
   });
 });

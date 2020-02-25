@@ -1,6 +1,4 @@
-import 'mocha';
 import { AxiosError } from 'axios';
-import { expect } from 'chai';
 import {
   getStandardError,
   OAuth,
@@ -12,7 +10,7 @@ import {
 import { Account, Contact } from '../assets/sobs';
 
 describe('Error Handlers', () => {
-  before(async () => {
+  beforeAll(async () => {
     const passwordConfig = new UsernamePasswordConfig(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
@@ -30,13 +28,13 @@ describe('Error Handlers', () => {
       throw new Error('Exception Expected');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('axios');
+      expect(stdErr.type).toBe('axios');
       const axiosE = stdErr.e as AxiosError;
-      expect(axiosE.response.status).to.equal(404);
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal('NOT_FOUND');
-      expect(stdErr.errorDetails[0].message).to.contain(
-        'Could not find a match for URL'
+      expect(axiosE.response.status).toBe(404);
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('NOT_FOUND');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['Could not find a match for URL'])
       );
     }
   });
@@ -49,10 +47,12 @@ describe('Error Handlers', () => {
       throw new Error('Exception Expected');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('axios');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal('JSON_PARSER_ERROR');
-      expect(stdErr.errorDetails[0].message).to.contain('No such column');
+      expect(stdErr.type).toBe('axios');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('JSON_PARSER_ERROR');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['No such column'])
+      );
     }
   });
 
@@ -62,11 +62,11 @@ describe('Error Handlers', () => {
       throw new Error('Exception Expected');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('axios');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal('INVALID_FIELD');
-      expect(stdErr.errorDetails[0].message).to.contain(
-        'SELECT asdf FROM ACCOUNT'
+      expect(stdErr.type).toBe('axios');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('INVALID_FIELD');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['SELECT asdf FROM ACCOUNT'])
       );
     }
   });
@@ -77,10 +77,12 @@ describe('Error Handlers', () => {
       throw new Error('Exception Expected');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('axios');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal('MALFORMED_QUERY');
-      expect(stdErr.errorDetails[0].message).to.contain('unexpected token');
+      expect(stdErr.type).toBe('axios');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('MALFORMED_QUERY');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['unexpected token'])
+      );
     }
   });
 
@@ -89,13 +91,11 @@ describe('Error Handlers', () => {
       await new Contact({}).insert();
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('composite');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal(
-        'REQUIRED_FIELD_MISSING'
-      );
-      expect(stdErr.errorDetails[0].message).to.contain(
-        'Required fields are missing: [LastName]'
+      expect(stdErr.type).toBe('composite');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('REQUIRED_FIELD_MISSING');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['Required fields are missing: [LastName]'])
       );
     }
   });
@@ -106,11 +106,11 @@ describe('Error Handlers', () => {
       throw new Error('update should have failed!');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('any');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal(undefined);
-      expect(stdErr.errorDetails[0].message).to.contain(
-        'Must have Id to update'
+      expect(stdErr.type).toBe('any');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBeUndefined();
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['Must have Id to update'])
       );
     }
   });
@@ -123,11 +123,11 @@ describe('Error Handlers', () => {
       throw new Error('update should have failed!');
     } catch (e) {
       const stdErr = getStandardError(e);
-      expect(stdErr.type).to.equal('composite');
-      expect(stdErr.errorDetails.length).to.equal(1);
-      expect(stdErr.errorDetails[0].errorCode).to.equal('MALFORMED_ID');
-      expect(stdErr.errorDetails[0].message).to.contain(
-        'Owner ID: id value of incorrect type'
+      expect(stdErr.type).toBe('composite');
+      expect(stdErr.errorDetails.length).toBe(1);
+      expect(stdErr.errorDetails[0].errorCode).toBe('MALFORMED_ID');
+      expect(stdErr.errorDetails[0].message).toEqual(
+        expect.arrayContaining(['Owner ID: id value of incorrect type'])
       );
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       acc.delete();

@@ -1,7 +1,5 @@
-import { expect } from 'chai';
 import { buildQuery } from '../../src';
 import { Account } from '../assets/sobs';
-import 'mocha';
 
 describe('Group By Tests', () => {
   it('group by x', () => {
@@ -14,7 +12,7 @@ describe('Group By Tests', () => {
       };
     });
 
-    expect(builder).to.equal(
+    expect(builder).toBe(
       'SELECT COUNT(Id) c FROM Account GROUP BY AccountSource'
     );
   });
@@ -28,7 +26,7 @@ describe('Group By Tests', () => {
         },
       };
     });
-    expect(builder).to.equal(
+    expect(builder).toBe(
       'SELECT COUNT(Id) c FROM Account GROUP BY AccountSource, Type'
     );
   });
@@ -44,7 +42,7 @@ describe('Group By Tests', () => {
       };
     });
 
-    expect(builder).to.equal(
+    expect(builder).toBe(
       'SELECT COUNT(Id) c FROM Account GROUP BY CUBE(AccountSource, Type)'
     );
   });
@@ -66,7 +64,7 @@ describe('Group By Tests', () => {
       };
     });
 
-    expect(builder).to.equal(
+    expect(builder).toBe(
       'SELECT COUNT(Id) c FROM Account GROUP BY Type HAVING COUNT(Id) > 1'
     );
   });

@@ -1,7 +1,5 @@
-import { expect } from 'chai';
 import { buildQuery, SOQLQueryParams } from '../../src';
 import { Account, Contact } from '../assets/sobs';
-import 'mocha';
 
 describe('Where Value Tests', () => {
   it('where x = string', () => {
@@ -11,7 +9,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('name'), op: '=', val: '123' }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name = '123'`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name = '123'`);
   });
 
   it('where x = string (defaulted)', () => {
@@ -21,7 +19,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('name'), val: '123' }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name = '123'`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name = '123'`);
   });
 
   it('where x IN string[]', () => {
@@ -33,7 +31,7 @@ describe('Where Value Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name IN ('123', '456')`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name IN ('123', '456')`);
   });
 
   it('where x IN string[] (defaulted)', () => {
@@ -43,7 +41,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('name'), val: ['123', '456'] }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name IN ('123', '456')`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name IN ('123', '456')`);
   });
 
   it('where x INCLUDES string[]', () => {
@@ -55,7 +53,7 @@ describe('Where Value Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Contact WHERE Name INCLUDES ('123', '456')`
     );
   });
@@ -67,7 +65,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('name'), op: '=', val: null }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name = NULL`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name = NULL`);
   });
 
   it('where x = UNDEFINED', () => {
@@ -77,7 +75,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('name'), op: '=', val: undefined }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Contact WHERE Name = NULL`);
+    expect(qry).toBe(`SELECT Id FROM Contact WHERE Name = NULL`);
   });
 
   it('where x = number', () => {
@@ -87,7 +85,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('annualRevenue'), op: '>', val: 100 }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Account WHERE AnnualRevenue > 100`);
+    expect(qry).toBe(`SELECT Id FROM Account WHERE AnnualRevenue > 100`);
   });
 
   it('where x = boolean', () => {
@@ -97,7 +95,7 @@ describe('Where Value Tests', () => {
         where: [{ field: fields.select('active'), op: '=', val: false }],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Account WHERE Active__c = false`);
+    expect(qry).toBe(`SELECT Id FROM Account WHERE Active__c = false`);
   });
 
   it('where x = DateTime', () => {
@@ -114,7 +112,7 @@ describe('Where Value Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE CreatedDate = 1999-01-01T01:01:01.000Z`
     );
   });
@@ -134,9 +132,7 @@ describe('Where Value Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
-      `SELECT Id FROM Account WHERE CreatedDate = 1999-01-01`
-    );
+    expect(qry).toBe(`SELECT Id FROM Account WHERE CreatedDate = 1999-01-01`);
   });
 
   it('where func(x) = number', () => {
@@ -152,7 +148,7 @@ describe('Where Value Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(`SELECT Id FROM Account WHERE COUNT(Id) = 1`);
+    expect(qry).toBe(`SELECT Id FROM Account WHERE COUNT(Id) = 1`);
   });
 
   it('where id IN (subqry)', () => {
@@ -170,7 +166,7 @@ describe('Where Value Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact)`
     );
   });
@@ -193,7 +189,7 @@ describe('Where Value Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = 'asdf')`
     );
   });
@@ -210,7 +206,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(`SELECT Id FROM Account WHERE NOT Name = '123'`);
+    expect(qry).toBe(`SELECT Id FROM Account WHERE NOT Name = '123'`);
   });
 
   it('1 AND 2', () => {
@@ -224,7 +220,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Name = '123' AND AnnualRevenue >= 123`
     );
   });
@@ -244,7 +240,7 @@ describe('Where Logic Tests', () => {
       }
     );
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Name = '123' OR AnnualRevenue >= 123`
     );
   });
@@ -265,7 +261,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Name = '123' AND (AnnualRevenue >= 123 OR Active__c = true)`
     );
   });
@@ -285,7 +281,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Name = '123' AND (AnnualRevenue >= 123 OR Active__c = true)`
     );
   });
@@ -310,7 +306,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE (Name = '123' OR Name = '456') AND (AnnualRevenue >= 123 OR Active__c = true)`
     );
   });
@@ -335,7 +331,7 @@ describe('Where Logic Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT Id FROM Account WHERE Name = '123' OR (AnnualRevenue >= 123 AND (Active__c = true OR AccountSource = 'web'))`
     );
   });

@@ -1,6 +1,3 @@
-import 'mocha';
-
-import { expect } from 'chai';
 import {
   CompositeCollection,
   compositeRetrieve,
@@ -14,7 +11,7 @@ import { getCalendarDate } from '../../src/utils/calendarDate';
 import { Account, Contact, User } from '../assets/sobs';
 
 describe('Generated Classes', () => {
-  before(async () => {
+  beforeAll(async () => {
     const passwordConfig = new UsernamePasswordConfig(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
@@ -33,7 +30,7 @@ describe('Generated Classes', () => {
     });
 
     await acc.insert();
-    expect(acc.id).to.not.eq(null);
+    expect(acc.id).not.toBe(null);
 
     const contact = new Contact({
       accountId: acc.id,
@@ -49,8 +46,8 @@ describe('Generated Classes', () => {
     )[0];
 
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    expect(contact2.account).not.to.be.empty;
-    expect(contact2.account.website).to.equal(acc.website);
+    expect(contact2.account).toHaveLength(0);
+    expect(contact2.account.website).toBe(acc.website);
 
     const acc2 = (
       await Account.retrieve(f => ({
@@ -59,7 +56,7 @@ describe('Generated Classes', () => {
       }))
     )[0];
     // if the lookup rel isn't set it should be null
-    expect(acc2.parent).to.eq(null);
+    expect(acc2.parent).toBe(null);
 
     await acc.delete();
   });
@@ -69,7 +66,7 @@ describe('Generated Classes', () => {
       name: 'test account',
     });
     await acc.insert();
-    expect(acc.id).to.eq(null);
+    expect(acc.id).toBe(null);
 
     acc.name = 'test name 2';
     await acc.update();
@@ -78,14 +75,14 @@ describe('Generated Classes', () => {
       await Account.retrieve(`SELECT Name FROM Account WHERE Id = '${acc.id}'`)
     )[0];
 
-    expect(acc2.name).to.equal(acc.name);
+    expect(acc2.name).toBe(acc.name);
 
     await acc.delete();
 
     const accounts = await Account.retrieve(
       `SELECT Name FROM Account WHERE Id = '${acc.id}'`
     );
-    expect(accounts.length).to.equal(0);
+    expect(accounts.length).toBe(0);
   });
 
   it('Stale Memory', async () => {
@@ -93,16 +90,16 @@ describe('Generated Classes', () => {
       name: 'stale name',
     });
     await acc.insert();
-    expect(acc.id).to.not.eq(null);
+    expect(acc.id).not.toBe(null);
 
     const acc2 = (
       await Account.retrieve(
         `SELECT Id, Name, Website FROM Account WHERE Id = '${acc.id}'`
       )
     )[0];
-    expect(acc2.name).to.equal('stale name');
+    expect(acc2.name).toBe('stale name');
     const sobDto = acc2.prepareFor('update');
-    expect(sobDto['Website']).to.equal(undefined);
+    expect(sobDto['Website']).toBeUndefined();
 
     acc2.name = 'new name';
     await acc2.update();
@@ -117,8 +114,8 @@ describe('Generated Classes', () => {
       )
     )[0];
 
-    expect(acc3.website).to.equal(acc.website);
-    expect(acc3.name).to.equal(acc2.name);
+    expect(acc3.website).toBe(acc.website);
+    expect(acc3.name).toBe(acc2.name);
 
     // test update
     const acc4 = new Account({
@@ -133,19 +130,13 @@ describe('Generated Classes', () => {
       )
     )[0];
 
-    expect(acc5.name).to.equal(acc4.name);
+    expect(acc5.name).toBe(acc4.name);
 
     // Test preserve object
-    expect(acc4._modified.size).to.equal(
-      0,
-      'expected _modified to be cleared after update'
-    );
+    expect(acc4._modified.size).toBe(0);
     acc4.name = 'new name';
     const acc6 = new Account(acc4);
-    expect(acc6._modified.size).to.equal(
-      1,
-      '_modified should be preserved when cloning'
-    );
+    expect(acc6._modified.size).toBe(1);
 
     await acc.delete();
   });
@@ -164,8 +155,8 @@ describe('Generated Classes', () => {
 
     const sob = acc2.prepareFor('update_all');
 
-    expect(sob['CreatedDate']).to.equal(undefined);
-    expect(sob['Name']).to.equal(acc2.name);
+    expect(sob['CreatedDate']).toBeUndefined();
+    expect(sob['Name']).toBe(acc2.name);
 
     await acc.delete();
   });
@@ -185,13 +176,13 @@ describe('Generated Classes', () => {
       )
     )[0];
 
-    expect(acc2.multiPick.length).to.equal(2);
-    expect(acc2.multiPick.indexOf(multiPick.ONE)).to.be.greaterThan(-1);
-    expect(acc2.multiPick.indexOf(multiPick.TWO)).to.be.greaterThan(-1);
+    expect(acc2.multiPick.length).toBe(2);
+    expect(acc2.multiPick.indexOf(multiPick.ONE)).toBeGreaterThan(-1);
+    expect(acc2.multiPick.indexOf(multiPick.TWO)).toBeGreaterThan(-1);
 
     const sob = acc2.prepareFor('apex');
 
-    expect(sob.MultiPick__c).to.equal(`${multiPick.ONE};${multiPick.TWO}`);
+    expect(sob.MultiPick__c).toBe(`${multiPick.ONE};${multiPick.TWO}`);
 
     await acc.delete();
   });
@@ -211,7 +202,7 @@ describe('Generated Classes', () => {
     acc2.billingCity = '23';
     await acc2.update({ refresh: true });
 
-    expect(acc2.website).to.equal(acc.website);
+    expect(acc2.website).toBe(acc.website);
 
     await acc.delete();
   });
@@ -229,8 +220,8 @@ describe('Generated Classes', () => {
       })
     )[0];
 
-    expect(acc2.lastModifiedDate).not.eq(null);
-    expect(acc2.createdById).not.eq(null);
+    expect(acc2.lastModifiedDate).not.toBe(null);
+    expect(acc2.createdById).not.toBe(null);
   });
 
   it('Collections End-to-End', async () => {
@@ -253,7 +244,7 @@ describe('Generated Classes', () => {
 
     const bulk = new CompositeCollection();
     const insertResults = await bulk.insert(contacts);
-    expect(contacts[0]._modified.size).to.equal(0);
+    expect(contacts[0]._modified.size).toBe(0);
 
     insertResults.forEach(r => {
       if (!r.success) {
@@ -267,14 +258,14 @@ describe('Generated Classes', () => {
       )
     )[0];
 
-    expect(acc.contacts.length).to.equal(contactSize);
+    expect(acc.contacts.length).toBe(contactSize);
 
     contacts.forEach(c => {
       c.email = 'test@example.com';
     });
 
     const updateResults = await bulk.update(contacts);
-    expect(contacts[0]._modified.size).to.equal(0);
+    expect(contacts[0]._modified.size).toBe(0);
     updateResults.forEach(r => {
       if (!r.success) {
         throw r.errors.map(e => e.message).join(', ');
@@ -287,7 +278,7 @@ describe('Generated Classes', () => {
       )
     )[0];
     acc.contacts.forEach(c => {
-      expect(c.email).to.equal('test@example.com');
+      expect(c.email).toBe('test@example.com');
     });
 
     const delResults = await bulk.delete(contacts);
@@ -303,7 +294,7 @@ describe('Generated Classes', () => {
       )
     )[0];
 
-    expect(acc.contacts.length).to.equal(0);
+    expect(acc.contacts.length).toBe(0);
 
     await acc.delete();
   });
@@ -342,7 +333,7 @@ describe('Generated Classes', () => {
       };
     });
 
-    expect(retCont[0].accountId).to.equal(acc.id);
+    expect(retCont[0].accountId).toBe(acc.id);
   });
 
   it('prepareFor Apex', async () => {
@@ -356,7 +347,7 @@ describe('Generated Classes', () => {
       }),
     });
 
-    expect(c.prepareFor('apex')).to.deep.equal({
+    expect(c.prepareFor('apex')).toEqual({
       Id: '123',
       AccountId: 'abc',
       FirstName: 'john',
@@ -376,7 +367,7 @@ describe('Generated Classes', () => {
       ],
     });
 
-    expect(acc.prepareFor('apex')).to.deep.equal({
+    expect(acc.prepareFor('apex')).toEqual({
       Id: '123',
       Contacts: { records: [{ FirstName: 'john', LastName: 'doe' }] },
     });
@@ -403,12 +394,10 @@ describe('Generated Classes', () => {
       })
     ).data;
     const retAcc = Account.fromSFObject(data);
-    expect(acc.id).to.deep.equal(retAcc.id);
-    expect(acc.contacts[0].firstName).to.deep.equal(
-      retAcc.contacts[0].firstName
-    );
-    expect(acc.contacts[0].lastName).to.deep.equal(retAcc.contacts[0].lastName);
-    expect(acc.owner.email).to.deep.equal(retAcc.owner.email);
+    expect(acc.id).toEqual(retAcc.id);
+    expect(acc.contacts[0].firstName).toEqual(retAcc.contacts[0].firstName);
+    expect(acc.contacts[0].lastName).toEqual(retAcc.contacts[0].lastName);
+    expect(acc.owner.email).toEqual(retAcc.owner.email);
   });
 
   it('composite retrieve', async () => {
@@ -421,24 +410,24 @@ describe('Generated Classes', () => {
     );
     const contactResults = results[0];
     if (Array.isArray(contactResults)) {
-      expect(contactResults.length).to.be.greaterThan(0);
-      expect(contactResults[0] instanceof Contact).to.be.eq(true);
+      expect(contactResults.length).toBeGreaterThan(0);
+      expect(contactResults[0] instanceof Contact).toBe(true);
     } else {
       throw new Error('Expected results[0] to return Contact[]');
     }
 
     const accountResults = results[1];
     if (Array.isArray(accountResults)) {
-      expect(accountResults.length).to.be.greaterThan(0);
-      expect(accountResults[0] instanceof Account).to.be.eq(true);
+      expect(accountResults.length).toBeGreaterThan(0);
+      expect(accountResults[0] instanceof Account).toBe(true);
     } else {
       throw new Error('Expected results[1] to return Account[]');
     }
 
     const userResults = results[2];
     if (!Array.isArray(userResults)) {
-      expect(userResults.statusCode).to.be.eq(400);
-      expect(Array.isArray(userResults.result)).to.be.eq(true);
+      expect(userResults.statusCode).toBe(400);
+      expect(Array.isArray(userResults.result)).toBe(true);
     } else {
       throw new Error('Expected results[2] to return errors');
     }
@@ -451,7 +440,7 @@ describe('Generated Classes', () => {
       birthdate: getCalendarDate(),
     });
     await c.insert();
-    expect(c.id).to.not.eq(null);
+    expect(c.id).not.toBe(null);
 
     const c2 = (
       await Contact.retrieve(f => ({
@@ -460,7 +449,7 @@ describe('Generated Classes', () => {
       }))
     )[0];
 
-    expect(c2.birthdate).to.deep.equal(c.birthdate);
+    expect(c2.birthdate).toEqual(c.birthdate);
 
     await c.delete();
   });

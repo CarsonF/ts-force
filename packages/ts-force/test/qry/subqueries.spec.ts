@@ -1,5 +1,3 @@
-import 'mocha';
-import { expect } from 'chai';
 import { buildQuery } from '../../src';
 import { Account } from '../assets/sobs';
 
@@ -16,7 +14,7 @@ describe('SubQueries Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(`SELECT (SELECT Id, Name FROM Contacts) FROM Account`);
+    expect(qry).toBe(`SELECT (SELECT Id, Name FROM Contacts) FROM Account`);
   });
 
   it('select (select x.y, x.z from y)', () => {
@@ -31,7 +29,7 @@ describe('SubQueries Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT (SELECT Owner.Phone, Owner.Name FROM Contacts) FROM Account`
     );
   });
@@ -51,7 +49,7 @@ describe('SubQueries Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       `SELECT (SELECT Owner.Phone, Owner.Name FROM Contacts WHERE Phone = '828-555-5555') FROM Account`
     );
   });

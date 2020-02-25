@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-misused-promises,no-async-promise-executor */
-import 'mocha';
-import { expect } from 'chai';
 import {
   OAuth,
   setDefaultConfig,
@@ -14,7 +12,7 @@ import { Account, PushTopic } from '../assets/sobs';
 const TEST_ACC_NAME = 'testing push topic';
 
 describe('Streaming API', () => {
-  before(async () => {
+  beforeAll(async () => {
     const passwordConfig = new UsernamePasswordConfig(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
@@ -31,17 +29,17 @@ describe('Streaming API', () => {
     try {
       const stream = new Streaming();
       await stream.connect();
-      expect(stream.isConnected()).to.equal(true);
+      expect(stream.isConnected()).toBe(true);
       await stream.disconnect();
-      expect(stream.isConnected()).to.equal(false);
+      expect(stream.isConnected()).toBe(false);
     } catch (e) {
       console.log(e);
-      expect.fail('SHOULD NOT HAVE THROWN ERROR!');
+      fail('SHOULD NOT HAVE THROWN ERROR!');
     }
   });
 
-  it('can subscribe & unsubscribe unmapped', async function() {
-    this.retries(3);
+  it('can subscribe & unsubscribe unmapped', async () => {
+    // this.retries(3);
     return new Promise(async (resolve, reject) => {
       try {
         // setup topic
@@ -50,13 +48,13 @@ describe('Streaming API', () => {
         // run test
         const stream = new Streaming();
         await stream.connect();
-        expect(stream.isConnected()).to.equal(true);
+        expect(stream.isConnected()).toBe(true);
 
         // sObject mapping
         await stream.subscribeToTopic<{ Id: string; Name: string }>(
           topic.name,
           e => {
-            expect(e.data.sobject.Name).to.equal(TEST_ACC_NAME);
+            expect(e.data.sobject.Name).toBe(TEST_ACC_NAME);
             stream
               .unsubscribe(topic.name, 'topic')
               .then(() => topic.delete())
@@ -74,8 +72,8 @@ describe('Streaming API', () => {
     });
   });
 
-  it('can subscribe & unsubscribe mapped', async function() {
-    this.retries(3);
+  it('can subscribe & unsubscribe mapped', async () => {
+    // this.retries(3);
     return new Promise(async (resolve, reject) => {
       try {
         // setup topic
@@ -84,11 +82,11 @@ describe('Streaming API', () => {
         // run test
         const stream = new Streaming();
         await stream.connect();
-        expect(stream.isConnected()).to.equal(true);
+        expect(stream.isConnected()).toBe(true);
 
         // sObject mapping
         await stream.subscribeToTopicMapped(Account, topic.name, e => {
-          expect(e.data.sObject.name).to.equal(TEST_ACC_NAME);
+          expect(e.data.sObject.name).toBe(TEST_ACC_NAME);
           stream
             .unsubscribe(topic.name, 'topic')
             .then(() => topic.delete())

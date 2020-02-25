@@ -1,7 +1,5 @@
-import { expect } from 'chai';
 import { buildQuery } from '../../src';
 import { Account, Contact } from '../assets/sobs';
-import 'mocha';
 
 describe('Select Tests', () => {
   it('select x', () => {
@@ -10,7 +8,7 @@ describe('Select Tests', () => {
         select: [fields.select('accountNumber')],
       };
     });
-    expect(qry).to.equal('SELECT AccountNumber FROM Account');
+    expect(qry).toBe('SELECT AccountNumber FROM Account');
   });
 
   it('select x, y', () => {
@@ -19,9 +17,7 @@ describe('Select Tests', () => {
         select: fields.select('accountNumber', 'active', 'website'),
       };
     });
-    expect(qry).to.equal(
-      'SELECT AccountNumber, Active__c, Website FROM Account'
-    );
+    expect(qry).toBe('SELECT AccountNumber, Active__c, Website FROM Account');
   });
 
   it('select x with arr arg', () => {
@@ -30,7 +26,7 @@ describe('Select Tests', () => {
         select: fields.select(['accountNumber']),
       };
     });
-    expect(qry).to.equal('SELECT AccountNumber FROM Account');
+    expect(qry).toBe('SELECT AccountNumber FROM Account');
   });
 
   it('select x, y with arr arg', () => {
@@ -39,9 +35,7 @@ describe('Select Tests', () => {
         select: fields.select(['accountNumber', 'active', 'website']),
       };
     });
-    expect(qry).to.equal(
-      'SELECT AccountNumber, Active__c, Website FROM Account'
-    );
+    expect(qry).toBe('SELECT AccountNumber, Active__c, Website FROM Account');
   });
 
   it('select x.y', () => {
@@ -50,7 +44,7 @@ describe('Select Tests', () => {
         select: [fields.parent('account').select('accountNumber')],
       };
     });
-    expect(qry).to.equal('SELECT Account.AccountNumber FROM Contact');
+    expect(qry).toBe('SELECT Account.AccountNumber FROM Contact');
   });
 
   it('select x.y.z', () => {
@@ -65,7 +59,7 @@ describe('Select Tests', () => {
       };
     });
 
-    expect(qry).to.equal('SELECT Account.Owner.Name FROM Contact');
+    expect(qry).toBe('SELECT Account.Owner.Name FROM Contact');
   });
 
   it('select x.y, x.z', () => {
@@ -74,7 +68,7 @@ describe('Select Tests', () => {
         select: fields.parent('account').select('accountNumber', 'active'),
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       'SELECT Account.AccountNumber, Account.Active__c FROM Contact'
     );
   });
@@ -88,7 +82,7 @@ describe('Select Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       'SELECT AccountId, Email, Account.AccountNumber, Account.Active__c FROM Contact'
     );
   });
@@ -101,7 +95,7 @@ describe('Select Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal('SELECT COUNT(AccountNumber) c FROM Account');
+    expect(qry).toBe('SELECT COUNT(AccountNumber) c FROM Account');
   });
 
   it('select COUNT(x), x, y, COUNT(y)', () => {
@@ -115,7 +109,7 @@ describe('Select Tests', () => {
         ),
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       'SELECT AssistantName, AVG(CreatedById), AccountId, CALENDAR_MONTH(AssistantPhone) FROM Contact'
     );
   });

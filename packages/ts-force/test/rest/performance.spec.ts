@@ -1,5 +1,3 @@
-import 'mocha';
-import { expect } from 'chai';
 import {
   OAuth,
   Rest,
@@ -26,7 +24,7 @@ const getBaseline = () => {
 const baseline = getBaseline();
 
 describe('Performance Compare', () => {
-  before(async () => {
+  beforeAll(async () => {
     const passwordConfig = new UsernamePasswordConfig(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
@@ -60,7 +58,7 @@ describe('Performance Compare', () => {
     }
     const stop = new Date();
     const diff = stop.getTime() - start.getTime();
-    expect(diff).to.be.lessThan(acceptableTime);
+    expect(diff).toBeLessThan(acceptableTime);
   });
 
   it('Query Builder', async () => {
@@ -92,6 +90,6 @@ describe('Performance Compare', () => {
     });
     const stop = new Date();
     const diff = stop.getTime() - start.getTime();
-    expect(diff).to.be.lessThan(acceptableTime / 2);
+    expect(diff).toBeLessThan(acceptableTime / 2);
   });
 });

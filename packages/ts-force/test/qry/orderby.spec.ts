@@ -1,7 +1,5 @@
-import { expect } from 'chai';
 import { buildQuery } from '../../src';
 import { Account } from '../assets/sobs';
-import 'mocha';
 
 describe('Order By Tests', () => {
   it('order by x', () => {
@@ -11,7 +9,7 @@ describe('Order By Tests', () => {
         orderBy: { field: fields.select('accountNumber') },
       };
     });
-    expect(qry).to.equal('SELECT Id FROM Account ORDER BY AccountNumber');
+    expect(qry).toBe('SELECT Id FROM Account ORDER BY AccountNumber');
   });
 
   it('order by x asc, y.z desc', () => {
@@ -31,7 +29,7 @@ describe('Order By Tests', () => {
       };
     });
 
-    expect(qry).to.equal(
+    expect(qry).toBe(
       'SELECT Id FROM Account ORDER BY AccountNumber ASC, Owner.Email DESC'
     );
   });
@@ -49,7 +47,7 @@ describe('Order By Tests', () => {
         ],
       };
     });
-    expect(qry).to.equal(
+    expect(qry).toBe(
       'SELECT Id FROM Account ORDER BY AccountNumber DESC NULLS LAST'
     );
   });

@@ -1,10 +1,6 @@
-import { should } from 'chai';
-import 'mocha';
 import { setDefaultConfig } from '../../src/auth/baseConfig';
 import { OAuth, UsernamePasswordConfig } from '../../src/auth/oauth';
 import { Rest } from '../../src/rest/rest';
-// set up should
-should();
 
 const passwordConfig = new UsernamePasswordConfig(
   process.env.CLIENT_ID,
@@ -17,11 +13,11 @@ const passwordConfig = new UsernamePasswordConfig(
 describe('env test', () => {
   it('should load params form ENV', () => {
     const req = passwordConfig.reqBody();
-    req.client_id.should.eql(process.env.CLIENT_ID);
-    req.client_secret.should.eql(process.env.CLIENT_SECRET);
-    req.grant_type.should.eql('password');
-    req.password.should.eql(process.env.PASSWORD);
-    req.username.should.eql(process.env.USERNAME);
+    expect(req.client_id).toEqual(process.env.CLIENT_ID);
+    expect(req.client_secret).toEqual(process.env.CLIENT_SECRET);
+    expect(req.grant_type).toEqual('password');
+    expect(req.password).toEqual(process.env.PASSWORD);
+    expect(req.username).toEqual(process.env.USERNAME);
   });
 });
 
@@ -29,15 +25,15 @@ describe('OAuth Test', () => {
   it('should load params form ENV', async () => {
     const auth = new OAuth(passwordConfig);
     await auth.initialize();
-    auth.accessToken.should.not.eql('');
-    auth.instanceUrl.should.not.eql('');
+    expect(auth.accessToken).not.toEqual('');
+    expect(auth.instanceUrl).not.toEqual('');
   });
 
   it('Get Token', async () => {
     const auth = new OAuth(passwordConfig);
     await auth.initialize();
-    auth.accessToken.should.not.eql('');
-    auth.instanceUrl.should.not.eql('');
+    expect(auth.accessToken).not.toEqual('');
+    expect(auth.instanceUrl).not.toEqual('');
   });
 
   it('Valid Passthrough to Rest Configs and Query Call', async () => {
@@ -47,6 +43,6 @@ describe('OAuth Test', () => {
     const rest = new Rest();
     const response = await rest.query('SELECT Id FROM Account');
     // assume we have at least one account to play with
-    response.totalSize.should.be.above(0);
+    expect(response.totalSize).toBeGreaterThan(0);
   });
 });
