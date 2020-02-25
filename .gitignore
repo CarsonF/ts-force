@@ -9,3 +9,7 @@ settings.json
 .nyc_output
 .env
 .vim-force*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.pnp.*
