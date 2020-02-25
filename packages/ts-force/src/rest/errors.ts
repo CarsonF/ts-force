@@ -45,9 +45,10 @@ export const getStandardError = (e: Error): TsForceException => {
     let err = getExceptionError(e);
     switch (err.type) {
         case 'any':
+        default:
             return {
-                type: err.type,
-                e: err.e,
+                type: 'any',
+                e: err.e as Error,
                 errorDetails: [{ message: e.message }]
             };
         case 'axios':
