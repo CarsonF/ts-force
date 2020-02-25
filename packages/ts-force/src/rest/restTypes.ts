@@ -62,9 +62,9 @@ export interface InvokableError {
 
 type ComplexLimit = AppLimits & Limit;
 
-type AppLimits = {
-  [key: string]: Limit
-};
+interface AppLimits {
+  [key: string]: Limit;
+}
 
 export interface Limit {
   Max: number;

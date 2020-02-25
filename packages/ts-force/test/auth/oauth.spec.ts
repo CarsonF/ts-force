@@ -1,15 +1,21 @@
 import { should } from 'chai';
 import 'mocha';
+import { setDefaultConfig } from '../../src/auth/baseConfig';
 import { OAuth, UsernamePasswordConfig } from '../../src/auth/oauth';
 import { Rest } from '../../src/rest/rest';
-import { setDefaultConfig } from '../../src/auth/baseConfig';
 // set up should
 should();
 
-const passwordConfig = new UsernamePasswordConfig(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.HOST, process.env.USERNAME, process.env.PASSWORD);
+const passwordConfig = new UsernamePasswordConfig(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.HOST,
+  process.env.USERNAME,
+  process.env.PASSWORD
+);
 
 describe('env test', () => {
-    it('should load params form ENV', () => {
+  it('should load params form ENV', () => {
     const req = passwordConfig.reqBody();
     req.client_id.should.eql(process.env.CLIENT_ID);
     req.client_secret.should.eql(process.env.CLIENT_SECRET);
@@ -20,27 +26,27 @@ describe('env test', () => {
 });
 
 describe('OAuth Test', () => {
-    it('should load params form ENV', async () => {
-        let auth = new OAuth(passwordConfig);
-        await auth.initialize();
-        auth.accessToken.should.not.eql('');
-        auth.instanceUrl.should.not.eql('');
-    });
+  it('should load params form ENV', async () => {
+    const auth = new OAuth(passwordConfig);
+    await auth.initialize();
+    auth.accessToken.should.not.eql('');
+    auth.instanceUrl.should.not.eql('');
+  });
 
-    it('Get Token', async () => {
-        let auth = new OAuth(passwordConfig);
-        await auth.initialize();
-        auth.accessToken.should.not.eql('');
-        auth.instanceUrl.should.not.eql('');
-    });
+  it('Get Token', async () => {
+    const auth = new OAuth(passwordConfig);
+    await auth.initialize();
+    auth.accessToken.should.not.eql('');
+    auth.instanceUrl.should.not.eql('');
+  });
 
-    it('Valid Passthrough to Rest Configs and Query Call', async () => {
-        let auth = new OAuth(passwordConfig);
-        setDefaultConfig(await auth.initialize());
-        // start a new REST instance to see if proplery filled out
-        const rest = new Rest();
-        const response = await rest.query('SELECT Id FROM Account');
-        // assume we have at least one account to play with
-        response.totalSize.should.be.above(0);
-    });
+  it('Valid Passthrough to Rest Configs and Query Call', async () => {
+    const auth = new OAuth(passwordConfig);
+    setDefaultConfig(await auth.initialize());
+    // start a new REST instance to see if proplery filled out
+    const rest = new Rest();
+    const response = await rest.query('SELECT Id FROM Account');
+    // assume we have at least one account to play with
+    response.totalSize.should.be.above(0);
+  });
 });

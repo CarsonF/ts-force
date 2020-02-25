@@ -25,7 +25,7 @@ export interface Config {
   /**
    * The SObjects to generate classes for.  Can either be a string or an `SObjectConfig` object
    */
-  sObjects?: (string | SObjectConfig)[];
+  sObjects?: Array<string | SObjectConfig>;
   /**
    * Flag to generate enums for picklist fields.  Defaulted to false
    */

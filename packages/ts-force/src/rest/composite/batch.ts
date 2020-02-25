@@ -1,12 +1,12 @@
-import { RestObject } from '../restObject';
+import { StandardRestError } from '../errors';
 import { Rest } from '../rest';
+import { RestObject } from '../restObject';
 import { QueryResponse } from '../restTypes';
 import { SObject } from '../sObject';
-import { StandardRestError } from '../errors';
 
 export interface BatchResponse {
   hasErrors: boolean;
-  results: CompositeBatchResult<any, any>[];
+  results: Array<CompositeBatchResult<any, any>>;
 }
 
 export interface CompositeBatchSuccessResult<T> {
@@ -19,13 +19,19 @@ export interface CompositeBatchFailResult<T> {
   result: T;
 }
 
-export type CompositeBatchResult<T, E> = CompositeBatchSuccessResult<T> | CompositeBatchFailResult<E>;
+export type CompositeBatchResult<T, E> =
+  | CompositeBatchSuccessResult<T>
+  | CompositeBatchFailResult<E>;
 
-export const isCompositeBatchSuccessResult = <T, E>(result: CompositeBatchResult<T, E>): result is CompositeBatchSuccessResult<T> => {
+export const isCompositeBatchSuccessResult = <T, E>(
+  result: CompositeBatchResult<T, E>
+): result is CompositeBatchSuccessResult<T> => {
   return result.statusCode < 300;
 };
 
-export const isCompositeBatchFailResult = <T, E>(result: CompositeBatchResult<T, E>): result is CompositeBatchFailResult<E> => {
+export const isCompositeBatchFailResult = <T, E>(
+  result: CompositeBatchResult<T, E>
+): result is CompositeBatchFailResult<E> => {
   return result.statusCode >= 300;
 };
 
@@ -40,41 +46,44 @@ export interface CompositeBatchPayload {
 }
 
 export class CompositeBatch {
-  public batchRequests: BatchRequest[];
+  batchRequests: BatchRequest[] = [];
 
-  public callbacks: Array<(n: CompositeBatchResult<any, any>) => void>;
+  callbacks: Array<(n: CompositeBatchResult<any, any>) => void> = [];
 
-  private client: Rest;
+  private readonly client: Rest;
 
   /**
    * Creates a composite batch to allow multiple requests to be sent in one round-trip
    * @param  {Rest} client? Optional.  If not set, will use Rest.DEFAULT_CONFIG
    */
-  constructor (client?: Rest) {
-    this.batchRequests = [];
-    this.callbacks = [];
+  constructor(client?: Rest) {
     this.client = client || new Rest();
   }
   /**
    * Sends all added requests
    * @returns Promise<BatchResponse> the completed response data.  Should be returned in order added
    */
-  public async send (): Promise<BatchResponse> {
-    let batchResponses: BatchResponse[] = [];
-    for (let payload of this.createPayloads()) {
-      let batchResponse = (await this.client.request.post(`/services/data/${this.client.version}/composite/batch`, payload)).data;
+  async send(): Promise<BatchResponse> {
+    const batchResponses: BatchResponse[] = [];
+    for (const payload of this.createPayloads()) {
+      const batchResponse = (
+        await this.client.request.post(
+          `/services/data/${this.client.version}/composite/batch`,
+          payload
+        )
+      ).data;
 
       batchResponses.push(batchResponse);
       for (let i = 0; i < this.callbacks.length; i++) {
-        let callback = this.callbacks[i];
+        const callback = this.callbacks[i];
         if (callback !== undefined) {
           callback(batchResponse.results[i]);
         }
       }
     }
     let hasErrors = false;
-    let results: CompositeBatchResult<any, any>[] = [];
-    for (let br of batchResponses) {
+    let results: Array<CompositeBatchResult<any, any>> = [];
+    for (const br of batchResponses) {
       if (br.hasErrors) {
         hasErrors = true;
       }
@@ -90,10 +99,13 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addGet (obj: RestObject, callback?: (n: CompositeBatchResult<SObject, any>) => void): CompositeBatch {
-    let request: BatchRequest = {
+  addGet(
+    obj: RestObject,
+    callback?: (n: CompositeBatchResult<SObject, any>) => void
+  ): CompositeBatch {
+    const request: BatchRequest = {
       method: 'GET',
-      url: `${this.client.version}/sobjects/${obj.attributes.type}/${obj.id}`
+      url: `${this.client.version}/sobjects/${obj.attributes.type}/${obj.id}`,
     };
     this.addBatchRequest(request, callback);
     return this;
@@ -105,13 +117,21 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addUpdate (obj: RestObject, opts?: { callback?: ((n: CompositeBatchResult<any, any>) => void), sendAllFields?: boolean }): CompositeBatch {
+  addUpdate(
+    obj: RestObject,
+    opts?: {
+      callback?: (n: CompositeBatchResult<any, any>) => void;
+      sendAllFields?: boolean;
+    }
+  ): CompositeBatch {
     opts = opts || {};
-    let sobData = obj.prepareFor(opts.sendAllFields ? 'update_all' : 'update');
-    let request: BatchRequest = {
+    const sobData = obj.prepareFor(
+      opts.sendAllFields ? 'update_all' : 'update'
+    );
+    const request: BatchRequest = {
       method: 'PATCH',
       url: `${this.client.version}/sobjects/${obj.attributes.type}/${obj.id}`,
-      richInput: sobData
+      richInput: sobData,
     };
     this.addBatchRequest(request, opts.callback);
     return this;
@@ -123,11 +143,14 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addInsert (obj: RestObject, callback?: (n: CompositeBatchResult<any, any>) => void): CompositeBatch {
-    let request: BatchRequest = {
+  addInsert(
+    obj: RestObject,
+    callback?: (n: CompositeBatchResult<any, any>) => void
+  ): CompositeBatch {
+    const request: BatchRequest = {
       method: 'POST',
       url: `${this.client.version}/sobjects/${obj.attributes.type}/`,
-      richInput: obj.prepareFor('insert')
+      richInput: obj.prepareFor('insert'),
     };
     this.addBatchRequest(request, callback);
 
@@ -140,10 +163,13 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addDelete (obj: RestObject, callback?: (n: CompositeBatchResult<any, any>) => void): CompositeBatch {
-    let request: BatchRequest = {
+  addDelete(
+    obj: RestObject,
+    callback?: (n: CompositeBatchResult<any, any>) => void
+  ): CompositeBatch {
+    const request: BatchRequest = {
       method: 'DELETE',
-      url: `${this.client.version}/sobjects/${obj.attributes.type}/${obj.id}`
+      url: `${this.client.version}/sobjects/${obj.attributes.type}/${obj.id}`,
     };
     this.addBatchRequest(request, callback);
 
@@ -156,11 +182,16 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addQuery (query: string, callback?: (n: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>) => void): CompositeBatch {
-    let qryString = encodeURIComponent(query);
-    let request: BatchRequest = {
+  addQuery(
+    query: string,
+    callback?: (
+      n: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>
+    ) => void
+  ): CompositeBatch {
+    const qryString = encodeURIComponent(query);
+    const request: BatchRequest = {
       method: 'GET',
-      url: `${this.client.version}/query?q=${qryString}`
+      url: `${this.client.version}/query?q=${qryString}`,
     };
     this.addBatchRequest(request, callback);
 
@@ -173,30 +204,37 @@ export class CompositeBatch {
    * @param  {(n:CompositeBatchResult)=>void} callback? optional callback to pass results to once operation is complete
    * @returns this instance is returned for easy chaining
    */
-  public addQueryMore (nextRecordsUrl: string, callback?: (n: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>) => void): CompositeBatch {
-
-    let request: BatchRequest = {
+  addQueryMore(
+    nextRecordsUrl: string,
+    callback?: (
+      n: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>
+    ) => void
+  ): CompositeBatch {
+    const request: BatchRequest = {
       method: 'GET',
-      url: nextRecordsUrl
+      url: nextRecordsUrl,
     };
     this.addBatchRequest(request, callback);
 
     return this;
   }
 
-  private addBatchRequest (request: BatchRequest, callback?: (n: CompositeBatchResult<any, any>) => void) {
+  private addBatchRequest(
+    request: BatchRequest,
+    callback?: (n: CompositeBatchResult<any, any>) => void
+  ) {
     this.batchRequests.push(request);
     this.callbacks.push(callback);
   }
 
-  private createPayloads (): CompositeBatchPayload[] {
-    let batches = [],
-      i = 0,
-      n = this.batchRequests.length;
+  private createPayloads(): CompositeBatchPayload[] {
+    const batches = [];
+    let i = 0;
+    const n = this.batchRequests.length;
 
     while (i < n) {
-      let payload: CompositeBatchPayload = {
-        batchRequests: this.batchRequests.slice(i, i += 25)
+      const payload: CompositeBatchPayload = {
+        batchRequests: this.batchRequests.slice(i, (i += 25)),
       };
       batches.push(payload);
     }

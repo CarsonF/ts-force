@@ -12,7 +12,7 @@ export const parseLimitsFromResponse = (response: AxiosResponse): ApiLimit => {
     const [, used, total] = match;
     return {
       used: Number(used),
-      limit: Number(total)
+      limit: Number(total),
     };
   }
   return null;

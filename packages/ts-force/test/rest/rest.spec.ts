@@ -1,7 +1,5 @@
-// // tslint:disable:no-unused-expression
 import 'mocha';
 import { expect } from 'chai';
-
 import {
   OAuth,
   Rest,
@@ -10,41 +8,45 @@ import {
 } from '../../src';
 
 describe('Rest Client', () => {
-    before(async () => {
-        const passwordConfig = new UsernamePasswordConfig(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.HOST, process.env.USERNAME, process.env.PASSWORD);
-        let oAuth = new OAuth(passwordConfig);
-        setDefaultConfig(await oAuth.initialize());
+  before(async () => {
+    const passwordConfig = new UsernamePasswordConfig(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      process.env.HOST,
+      process.env.USERNAME,
+      process.env.PASSWORD
+    );
+    const oAuth = new OAuth(passwordConfig);
+    setDefaultConfig(await oAuth.initialize());
+  });
+
+  it('should construct', async () => {
+    const client1 = new Rest();
+    const client2 = new Rest();
+
+    const clientOther = new Rest({
+      accessToken: 'abc',
+      instanceUrl: '123',
     });
 
-    it('should construct', async () => {
-        let client1 = new Rest();
-        let client2 = new Rest();
+    expect(client1).to.equal(client2);
+    expect(client1).not.to.equal(clientOther);
+  });
 
-        let clientOther = new Rest({
-            accessToken: 'abc',
-            'instanceUrl': '123'
-        });
+  it('should capture rest limit from header', async () => {
+    const client = new Rest();
 
-        expect(client1).to.equal(client2);
-        expect(client1).not.to.equal(clientOther);
-    });
+    await client.query('SELECT Id FROM Account');
 
-    it('should capture rest limit from header', async () => {
-        let client = new Rest();
+    expect(client.apiLimit.limit).to.be.greaterThan(0);
+    expect(client.apiLimit.used).to.be.greaterThan(0);
+  });
 
-        await client.query('SELECT Id FROM Account');
+  it('can call limits endpoint', async () => {
+    const client = new Rest();
 
-        expect(client.apiLimit.limit).to.be.greaterThan(0);
-        expect(client.apiLimit.used).to.be.greaterThan(0);
-    });
+    const limits = await client.limits();
 
-    it('can call limits endpoint', async () => {
-        let client = new Rest();
-
-        let limits = await client.limits();
-
-        expect(limits.DailyStreamingApiEvents.Max).to.be.greaterThan(0);
-
-    });
-
+    expect(limits.DailyStreamingApiEvents.Max).to.be.greaterThan(0);
+  });
 });

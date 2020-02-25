@@ -1,7 +1,19 @@
-import { CompositeBatch, CompositeBatchResult, isCompositeBatchSuccessResult, isCompositeBatchFailResult, CompositeBatchFailResult } from '.';
-import { SObjectStatic, FieldResolver, SOQLQueryParams, QueryResponse, buildQuery, SObject, StandardizedSFError, StandardRestError } from '../..';
+import {
+  CompositeBatch,
+  CompositeBatchFailResult,
+  CompositeBatchResult,
+  isCompositeBatchFailResult,
+} from '.';
+import {
+  buildQuery,
+  FieldResolver,
+  QueryResponse,
+  SObjectStatic,
+  SOQLQueryParams,
+  StandardRestError,
+} from '../..';
 
- /**
+/**
  *  Combines multiple RestObject "retrieve" calls using Composite Batch.
  * @param {...{ [K in keyof T]: SObjectStatic<T[K]> }} sObjects: Accepts a tuple of SObject types you wish to query against
  * @returns A function which can be used to build a query.
@@ -24,14 +36,26 @@ import { SObjectStatic, FieldResolver, SOQLQueryParams, QueryResponse, buildQuer
  * // allResults[3] will yield type error
  * ```
  */
-export const compositeRetrieve = <T extends Array<any>>(...sObjects: { [K in keyof T]: SObjectStatic<T[K]> }) => {
+export const compositeRetrieve = <T extends any[]>(
+  ...sObjects: { [K in keyof T]: SObjectStatic<T[K]> }
+) => {
   return async (
-    ...queryFunctions: { [K in keyof T]: ((fields: FieldResolver<T[K]>) => SOQLQueryParams) | string }) => {
-    let c = new CompositeBatch();
-    let queryResults = [];
-    let nextRecordQueries: Array<{nextRecordsUrl: string, handleResults: (r: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>) => void}> = [];
+    ...queryFunctions: {
+      [K in keyof T]:
+        | ((fields: FieldResolver<T[K]>) => SOQLQueryParams)
+        | string;
+    }
+  ) => {
+    const c = new CompositeBatch();
+    const queryResults = [];
+    const nextRecordQueries: Array<{
+      nextRecordsUrl: string;
+      handleResults: (
+        r: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>
+      ) => void;
+    }> = [];
     sObjects.map((sObject, i) => {
-      let qryFunc = queryFunctions[i];
+      const qryFunc = queryFunctions[i];
       let qry;
       if (typeof qryFunc === 'string') {
         qry = queryFunctions;
@@ -39,46 +63,48 @@ export const compositeRetrieve = <T extends Array<any>>(...sObjects: { [K in key
         qry = buildQuery(sObject, qryFunc);
       }
 
-      const handleResults = (results: CompositeBatchResult<QueryResponse<any>, StandardRestError[]> ) => {
+      const handleResults = (
+        results: CompositeBatchResult<QueryResponse<any>, StandardRestError[]>
+      ) => {
         if (isCompositeBatchFailResult(results)) {
           queryResults[i] = results;
-        }else {
-          let data = results.result.records.map(sob => {
+        } else {
+          const data = results.result.records.map(sob => {
             return sObject.fromSFObject(sob);
           });
           if (queryResults[i]) {
             queryResults[i] = [...data, ...queryResults[i]];
-          }else {
+          } else {
             queryResults[i] = data;
           }
 
           if (!results.result.done) {
             nextRecordQueries.push({
               nextRecordsUrl: results.result.nextRecordsUrl,
-              handleResults
+              handleResults,
             });
           }
         }
-
       };
 
-      c.addQuery(
-        qry,
-        handleResults
-      );
+      c.addQuery(qry, handleResults);
     });
 
     await c.send();
     while (nextRecordQueries.length) {
-      let cN = new CompositeBatch();
+      const cN = new CompositeBatch();
       let nextReq;
-      while (nextReq = nextRecordQueries.pop()) {
+      while ((nextReq = nextRecordQueries.pop())) {
         cN.addQueryMore(nextReq.nextRecordsUrl, nextReq.handleResults);
       }
 
       await cN.send();
     }
 
-    return queryResults as { [K in keyof T]: (Array<T[K]> | CompositeBatchFailResult<StandardRestError[]>) };
+    return queryResults as {
+      [K in keyof T]:
+        | Array<T[K]>
+        | CompositeBatchFailResult<StandardRestError[]>;
+    };
   };
 };
