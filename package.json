@@ -1,28 +1,32 @@
 {
-  "name": "ts-force-project",
-  "version": "3.0.0-rc.3",
-  "description": "",
+  "name": "@ts-force/monorepo",
+  "private": true,
+  "version": "4.0.0-alpha.0",
   "scripts": {
-    "postinstall": "cd ts-force && npm install && npm run build && cd ../ts-force-gen && npm install",
-    "test": "cd ts-force && npm test && cd ../ts-force-gen && npm test",
-    "ci": "cd ts-force && npm run generate-test-classes",
-    "checkCommitted": "git diff-index --quiet HEAD -- || { echo 'ERROR: You have uncommitted changes!  Please commit before publishing...'; exit 1; } ",
-    "tag": "git add '*package*.json' && git commit -m \"published v$npm_package_version\" && git tag $npm_package_version",
-    "prepublishOnly": "echo 'Code should be published from individual directories' && exit 1",
-    "publishRuntime": "cd ts-force && npm version $npm_package_version && npm publish",
-    "publishGen": "cd ts-force-gen && npm version $npm_package_version && npm publish",
-    "build": "cd ts-force && npm run build && cd ../ts-force-gen && npm run build",
-    "tagNext": "npm dist-tag add ts-force@$npm_package_version && npm dist-tag add ts-force-gen@$npm_package_version",
-    "publishBoth": "npm run checkCommitted && npm run publishRuntime && npm run publishGen && npm run tag"
+    "compile": "yarn workspaces foreach -pt run compile",
+    "clean": "yarn workspaces foreach -p run clean"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ChuckJonas/ts-force.git"
+  "engines": {
+    "node": ">=4.5"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ChuckJonas/ts-force/issues"
+  "dependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/nock": "^8.2.1",
+    "@types/node": "^8.0.4",
+    "chai": "^4.1.2",
+    "dotenv": "^4.0.0",
+    "mocha": "^5.2.0",
+    "mocha-typescript": "^1.1.8",
+    "nock": "^9.2.6",
+    "node-env-run": "^3.0.2",
+    "source-map-support": "^0.4.18",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.4.3",
+    "tslint-config-standard": "^6.0.1",
+    "typescript": "^3.4.5"
   },
-  "homepage": "https://github.com/ChuckJonas/ts-force#readme"
+  "workspaces": [
+    "packages/*"
+  ]
 }
