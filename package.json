@@ -9,7 +9,7 @@
     "test": "jest"
   },
   "engines": {
-    "node": ">=4.5"
+    "node": ">=10"
   },
   "dependencies": {
     "@types/dotenv": "^8.2.0",

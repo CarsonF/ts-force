@@ -30,7 +30,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "engines": {
-    "node": ">=4.5"
+    "node": ">=10"
   },
   "dependencies": {
     "@salesforce/core": "^2.2.0",
