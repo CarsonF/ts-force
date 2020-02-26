@@ -26,8 +26,10 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-import-helpers": "^1.0.2",
     "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.2.3",
     "jest": "^25.1.0",
     "json5": "^2.1.1",
+    "lint-staged": "^10.0.8",
     "node-env-run": "^3.0.2",
     "prettier": "^1.19.1",
     "ts-jest": "^25.2.1",
@@ -36,5 +38,17 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "post-commit": "git update-index --again"
+    }
+  },
+  "lint-staged": {
+    "packages/*/src/*.{ts,tsx}": [
+      "eslint --ext .ts,.tsx --fix --max-warnings 0",
+      "git add"
+    ]
+  }
 }
